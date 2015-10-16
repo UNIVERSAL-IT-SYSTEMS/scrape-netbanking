@@ -15,6 +15,7 @@ def main():
     print(mufg.yesterday)  # 前日の入出金を取得
     print(mufg.today)  # 当日の入出金を取得
     print(mufg.get('20150831'))  # 2015/8/31の入出金を取得
+    print(mufg.total)
 
     # 住信SBI
     sbi = Sbi(os.environ.get('SBI_ID'),

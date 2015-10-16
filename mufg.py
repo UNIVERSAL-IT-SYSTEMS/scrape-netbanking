@@ -24,6 +24,7 @@ class Mufg:
         self._password = _password
         self._browser = None
         self._statement_dict = {}
+        self._total = 0
 
     def scrape(self):
         self._browser = webdriver.PhantomJS()
@@ -50,6 +51,10 @@ class Mufg:
     def yesterday(self):
         key = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d')
         return self.get(key)
+
+    @property
+    def total(self):
+        return self._total
 
     def _login(self):
         self._browser.get(self._MUFG_TOP_URL)
@@ -83,8 +88,12 @@ class Mufg:
 
     def _get_statements(self):
         """
-        入出金の明細を取得します
+        残高と入出金の明細を取得します
         """
+
+        # 残高を取得
+        total = self._browser.find_element_by_id('setAmountDisplay')
+        self._total = self._yen_to_int(total.text)
 
         # 入出金明細画面に移動
         self._browser.find_element_by_xpath('//img[@alt="入出金明細をみる"]').click()
