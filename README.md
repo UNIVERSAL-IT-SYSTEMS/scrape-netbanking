@@ -1,14 +1,15 @@
 # Scrape Netbanking
 
 ネットバンキングをスクレイピングして入出金明細を取得します。
-WebDriverにChromeを使用します
 
 * 三菱東京UFJ銀行
 * 住信SBIネット銀行
 
-## 使い方
+## 必須
 
-[ChromeDriver - WebDriver for Chrome](https://sites.google.com/a/chromium.org/chromedriver/downloads)からDriverをカレントディレクトリにダウンロード
+* PhantomJS
+
+## 使い方
 
 ```sh
 $ pip install -r requirements.txt

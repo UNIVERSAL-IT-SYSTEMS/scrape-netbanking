@@ -14,7 +14,6 @@ class Mufg:
     入出金一覧を取得します
     """
 
-    _DRIVER_PATH = os.path.join(os.path.dirname(__file__), 'chromedriver')
     _MUFG_TOP_URL = 'https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AA000_001'
 
     WAIT_SEC = 3
@@ -28,7 +27,7 @@ class Mufg:
         self._statement_dict = {}
 
     def scrape(self):
-        self._browser = webdriver.Chrome(self._DRIVER_PATH)
+        self._browser = webdriver.PhantomJS()
         try:
             self._login()
             if self._has_information():

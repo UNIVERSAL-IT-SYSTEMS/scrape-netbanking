@@ -14,7 +14,6 @@ class Sbi:
     入出金一覧を取得します
     """
 
-    _DRIVER_PATH = os.path.join(os.path.dirname(__file__), 'chromedriver')
     _LOGIN_URL = 'https://www.netbk.co.jp/wpl/NBGate'
 
     WAIT_SEC = 3
@@ -28,7 +27,7 @@ class Sbi:
         self._statement_dict = {}
 
     def scrape(self):
-        self._browser = webdriver.Chrome(self._DRIVER_PATH)
+        self._browser = webdriver.PhantomJS()
         try:
             self._login()
             self._skip_information()
