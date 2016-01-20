@@ -111,11 +111,3 @@ class Sbi:
         self._browser.find_element_by_xpath('//img[@alt="ログアウト"]').click()
         time.sleep(self.WAIT_SEC)
 
-if __name__ == '__main__':
-    sbi = Sbi(os.environ.get('SBI_ID'),
-              os.environ.get('SBI_PASSWORD'))
-    sbi.scrape()
-
-    print(sbi.yesterday)  # 前日の入出金を取得
-    print(sbi.today)  # 当日の入出金を取得
-    print(sbi.get('20150824'))  # 2015/8/24の入出金を取得
