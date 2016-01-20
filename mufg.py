@@ -15,8 +15,6 @@ class Mufg:
 
     _MUFG_TOP_URL = 'https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AA000_001'
 
-    WAIT_SEC = 3
-
     def __init__(self, _id, _password):
         assert _id, 'ID is None'
         assert _password, 'password is None'
@@ -58,11 +56,9 @@ class Mufg:
 
     def _login(self):
         self._browser.get(self._MUFG_TOP_URL)
-        time.sleep(self.WAIT_SEC)
         self._browser.find_element_by_id('account_id').send_keys(self._id)
         self._browser.find_element_by_id('ib_password').send_keys(self._password)
         self._browser.find_element_by_xpath('//img[@alt="ログイン"]').click()
-        time.sleep(self.WAIT_SEC)
 
     def _has_information(self):
         """
@@ -81,10 +77,8 @@ class Mufg:
             information = self._browser.find_element_by_xpath(
                 '//table[@class="data"]/tbody/tr')
             information.find_element_by_name('hyouzi').click()
-            time.sleep(self.WAIT_SEC)
 
             self._browser.find_element_by_xpath('//img[@alt="トップページへ"]').click()
-            time.sleep(self.WAIT_SEC)
 
     def _get_statements(self):
         """
@@ -97,7 +91,6 @@ class Mufg:
 
         # 入出金明細画面に移動
         self._browser.find_element_by_xpath('//img[@alt="入出金明細をみる"]').click()
-        time.sleep(self.WAIT_SEC)
 
         # 明細一覧を取得
         banking_list = self._browser.find_elements_by_xpath(
@@ -134,4 +127,3 @@ class Mufg:
 
     def _logout(self):
         self._browser.find_element_by_link_text('ログアウト').click()
-        time.sleep(self.WAIT_SEC)
