@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os
-import time
 import datetime
 from selenium import webdriver
 from models import Statement
@@ -15,8 +13,6 @@ class Sbi:
     """
 
     _LOGIN_URL = 'https://www.netbk.co.jp/wpl/NBGate'
-
-    WAIT_SEC = 3
 
     def __init__(self, _id, _password):
         assert _id, 'ID is None'
@@ -53,11 +49,9 @@ class Sbi:
 
     def _login(self):
         self._browser.get(self._LOGIN_URL)
-        time.sleep(self.WAIT_SEC)
         self._browser.find_element_by_name('userName').send_keys(self._id)
         self._browser.find_element_by_name('loginPwdSet').send_keys(self._password)
         self._browser.find_element_by_xpath('//input[@alt="ログイン"]').click()
-        time.sleep(self.WAIT_SEC)
 
     def _skip_information(self):
         """重要なお知らせ画面をスキップします
@@ -72,7 +66,6 @@ class Sbi:
 
         # 入出金明細画面に移動
         self._browser.find_element_by_link_text('入出金明細').click()
-        time.sleep(self.WAIT_SEC)
 
         # 明細一覧を取得
         banking_list = self._browser.find_elements_by_xpath(
@@ -109,5 +102,4 @@ class Sbi:
 
     def _logout(self):
         self._browser.find_element_by_xpath('//img[@alt="ログアウト"]').click()
-        time.sleep(self.WAIT_SEC)
 
