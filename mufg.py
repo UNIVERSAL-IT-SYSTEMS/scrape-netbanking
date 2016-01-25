@@ -98,7 +98,8 @@ def main(_from: datetime, _to: datetime):
         # 残高を取得
         total = driver.find_element_by_id('setAmountDisplay')
         total_amount = to_number(total.text)
-        print(total_amount)
+
+        print('{:,d}円'.format(total_amount))
 
         # 入出金明細画面に移動
         show_details(_from, _to)

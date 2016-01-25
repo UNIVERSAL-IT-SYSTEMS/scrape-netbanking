@@ -11,12 +11,12 @@ class Detail:
         self._balance = balance
 
     def __str__(self):
-        return '{}: {}円, {}'.format(self._date.strftime('%Y-%m-%d'),
+        return '{}: {:,d}円, {}'.format(self._date.strftime('%Y-%m-%d'),
                                    self._payment if self._payment > 0 else self._withdrawal,
                                    self._transaction)
 
     def __repr__(self):
-        return '{}: {}円, {}'.format(self._date.strftime('%Y-%m-%d'),
+        return '{}: {:,d}円, {}'.format(self._date.strftime('%Y-%m-%d'),
                                    self._payment if self._payment > 0 else self._withdrawal,
                                    self._transaction)
 
