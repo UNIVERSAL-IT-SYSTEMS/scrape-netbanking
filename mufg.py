@@ -88,7 +88,7 @@ def to_number(yen: str) -> int:
     pass
 
 
-def main():
+def main(_from: datetime, _to: datetime):
     try:
         login()
 
@@ -100,10 +100,8 @@ def main():
         total_amount = to_number(total.text)
         print(total_amount)
 
-        today = datetime.datetime.now()
-
         # 入出金明細画面に移動
-        show_details(today, today)
+        show_details(_from, _to)
 
         # TODO 複数ページ対応
 
@@ -127,6 +125,7 @@ def main():
         driver.close()
 
 if __name__ == '__main__':
-    main()
+    today = datetime.datetime.now()
+    main(today, today)
 
 
