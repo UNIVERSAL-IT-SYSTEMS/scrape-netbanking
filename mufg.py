@@ -5,6 +5,7 @@ import os
 import datetime
 from detail import Detail
 from selenium import webdriver
+from selenium.webdriver.support.ui import Select
 
 
 MUFG_TOP_URL = 'https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AA000_001'
@@ -42,6 +43,35 @@ def read_information():
         driver.find_element_by_xpath('//img[@alt="トップページへ"]').click()
 
 
+def show_details(_from: datetime, _to: datetime):
+    """
+    指定した期間の明細一覧画面を表示します
+
+    :param _from:
+    :param _to:
+    :return:
+    """
+
+    driver.find_element_by_xpath('//img[@alt="入出金明細をみる"]').click()
+
+    driver.find_element_by_name('SHOUKAIKIKAN_RADIO').click()
+
+    select_from_year = Select(driver.find_element_by_name('SHOUKAIKIKAN_FROM_Y'))
+    select_from_year.select_by_visible_text(str(_from.year))
+    select_from_month = Select(driver.find_element_by_name('SHOUKAIKIKAN_FROM_M'))
+    select_from_month.select_by_visible_text(str(_from.month))
+    select_from_day = Select(driver.find_element_by_name('SHOUKAIKIKAN_FROM_D'))
+    select_from_day.select_by_visible_text(str(_from.day))
+    select_to_year = Select(driver.find_element_by_name('SHOUKAIKIKAN_TO_Y'))
+    select_to_year.select_by_visible_text(str(_to.year))
+    select_to_month = Select(driver.find_element_by_name('SHOUKAIKIKAN_TO_M'))
+    select_to_month.select_by_visible_text(str(_to.month))
+    select_to_day = Select(driver.find_element_by_name('SHOUKAIKIKAN_TO_D'))
+    select_to_day.select_by_visible_text(str(_to.day))
+
+    driver.find_element_by_xpath('//img[@alt="照会"]').click()
+
+
 def to_number(yen: str) -> int:
     """
     xxx,xxx,xxx円からカンマと「円」を削除します
@@ -70,15 +100,12 @@ def main():
         total_amount = to_number(total.text)
         print(total_amount)
 
-        # 当日の入出金を取得する
+        today = datetime.datetime.now()
 
         # 入出金明細画面に移動
-        driver.find_element_by_xpath('//img[@alt="入出金明細をみる"]').click()
+        show_details(today, today)
 
-        # 当日分を表示
-        driver.find_element_by_id('today').click()
-        # driver.find_element_by_id('last_month').click()
-        driver.find_element_by_xpath('//img[@alt="照会"]').click()
+        # TODO 複数ページ対応
 
         banking_list = driver.find_elements_by_xpath(
                 '//table[@class="data yen_nyushutsukin_001"]/tbody/tr')
