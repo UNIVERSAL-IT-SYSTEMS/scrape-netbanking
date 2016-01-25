@@ -95,8 +95,8 @@ def main():
                        to_number(detail[4].text))
             print(d)
 
-    finally:
         logout()
+    finally:
         driver.close()
 
 if __name__ == '__main__':
