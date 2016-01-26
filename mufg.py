@@ -81,11 +81,7 @@ def to_number(yen: str) -> int:
     """
     if yen == '':
         return 0
-    try:
-        return int(yen.replace(',', '').replace('円', ''))
-    except ValueError:
-        return 0
-    pass
+    return int(yen.replace(',', '').replace('円', ''))
 
 
 def main(_from: datetime, _to: datetime):
