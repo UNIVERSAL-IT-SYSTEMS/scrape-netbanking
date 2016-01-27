@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os
 import datetime
+import os
+
+from mongoengine import Document
+from mongoengine import connect
+from mongoengine import fields
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
-
-from mongoengine import connect
-from mongoengine import Document
-from mongoengine import fields
 
 MUFG_TOP_URL = 'https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AA000_001'
 INFORMATION_TITLE = 'お知らせ - 三菱東京ＵＦＪ銀行'
