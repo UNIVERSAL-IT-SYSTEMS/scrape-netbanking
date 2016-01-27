@@ -56,6 +56,18 @@ def read_information():
         driver.find_element_by_xpath('//img[@alt="トップページへ"]').click()
 
 
+def select_selectbox_value(element_name: str, value: str):
+    """
+    セレクトボックスの値を選択します
+
+    :param element_name:
+    :param value:
+    :return:
+    """
+    selectbox = Select(driver.find_element_by_name(element_name))
+    selectbox.select_by_visible_text(str(value))
+
+
 def show_details(_from: datetime, _to: datetime):
     """
     指定した期間の明細一覧画面を表示します
@@ -69,18 +81,12 @@ def show_details(_from: datetime, _to: datetime):
 
     driver.find_element_by_name('SHOUKAIKIKAN_RADIO').click()
 
-    select_from_year = Select(driver.find_element_by_name('SHOUKAIKIKAN_FROM_Y'))
-    select_from_year.select_by_visible_text(str(_from.year))
-    select_from_month = Select(driver.find_element_by_name('SHOUKAIKIKAN_FROM_M'))
-    select_from_month.select_by_visible_text(str(_from.month))
-    select_from_day = Select(driver.find_element_by_name('SHOUKAIKIKAN_FROM_D'))
-    select_from_day.select_by_visible_text(str(_from.day))
-    select_to_year = Select(driver.find_element_by_name('SHOUKAIKIKAN_TO_Y'))
-    select_to_year.select_by_visible_text(str(_to.year))
-    select_to_month = Select(driver.find_element_by_name('SHOUKAIKIKAN_TO_M'))
-    select_to_month.select_by_visible_text(str(_to.month))
-    select_to_day = Select(driver.find_element_by_name('SHOUKAIKIKAN_TO_D'))
-    select_to_day.select_by_visible_text(str(_to.day))
+    select_selectbox_value('SHOUKAIKIKAN_FROM_Y', str(_from.year))
+    select_selectbox_value('SHOUKAIKIKAN_FROM_M', str(_from.month))
+    select_selectbox_value('SHOUKAIKIKAN_FROM_D', str(_from.day))
+    select_selectbox_value('SHOUKAIKIKAN_TO_Y', str(_to.year))
+    select_selectbox_value('SHOUKAIKIKAN_TO_M', str(_to.month))
+    select_selectbox_value('SHOUKAIKIKAN_TO_D', str(_to.day))
 
     driver.find_element_by_xpath('//img[@alt="照会"]').click()
 
