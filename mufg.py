@@ -3,19 +3,32 @@
 
 import os
 import datetime
-from detail import Detail
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 
+from mongoengine import connect
+from mongoengine import Document
+from mongoengine import fields
 
 MUFG_TOP_URL = 'https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AA000_001'
 INFORMATION_TITLE = 'お知らせ - 三菱東京ＵＦＪ銀行'
 
-# driver = webdriver.PhantomJS()
-driver = webdriver.Chrome(os.path.join(os.path.dirname(__file__), 'chromedriver'))
+driver = webdriver.PhantomJS(executable_path='/usr/local/bin/phantomjs')
 
 account_id = os.environ['ACCOUNT_ID']
 ib_password = os.environ['IB_PASSWORD']
+
+connect('moneylog')
+
+
+class MoneyLog(Document):
+    date = fields.DateTimeField()
+    payment = fields.IntField()
+    remark = fields.StringField()
+    total = fields.IntField()
+
+    def __str__(self):
+        return '{}: {}: {}'.format(self.date, self.payment, self.remark)
 
 
 def login():
@@ -84,6 +97,21 @@ def to_number(yen: str) -> int:
     return int(yen.replace(',', '').replace('円', ''))
 
 
+def in_or_out_payment(_out: str, _in: str) -> int:
+    """
+    入出金の判定を行います
+
+    :param _out:
+    :param _in:
+    :return:
+    """
+    if not _out == '':
+        # 出金
+        return to_number(_out) * -1
+    # 入金
+    return to_number(_in)
+
+
 def main(_from: datetime, _to: datetime):
     try:
         login()
@@ -110,12 +138,13 @@ def main(_from: datetime, _to: datetime):
 
             date = datetime.datetime.strptime(detail[0].text.replace('\n', ''), '%Y年%m月%d日')
 
-            d = Detail(date,
-                       to_number(detail[1].text),
-                       to_number(detail[2].text),
-                       detail[3].text,
-                       to_number(detail[4].text))
-            print(d)
+            payment = in_or_out_payment(detail[1].text, detail[2].text)
+            total = to_number(detail[4].text)
+
+            m = MoneyLog(date=date, payment=payment, remark=detail[3].text,
+                         total=total)
+            m.save()
+            print(m)
 
         logout()
     finally:
