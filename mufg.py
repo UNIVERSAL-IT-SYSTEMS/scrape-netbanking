@@ -9,14 +9,12 @@ from mongoengine import connect
 from mongoengine import fields
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
 
 MUFG_TOP_URL = 'https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AA000_001'
 INFORMATION_TITLE = 'お知らせ - 三菱東京ＵＦＪ銀行'
 
 driver = webdriver.PhantomJS(executable_path='/usr/local/bin/phantomjs')
-
-account_id = os.environ['ACCOUNT_ID']
-ib_password = os.environ['IB_PASSWORD']
 
 connect('moneylog')
 
@@ -31,7 +29,7 @@ class MoneyLog(Document):
         return '{}: {}: {}'.format(self.date, self.payment, self.remark)
 
 
-def login():
+def login(account_id: str, ib_password: str):
     driver.get(MUFG_TOP_URL)
     driver.find_element_by_id('account_id').send_keys(account_id)
     driver.find_element_by_id('ib_password').send_keys(ib_password)
@@ -68,16 +66,14 @@ def select_selectbox_value(element_name: str, value: str):
     selectbox.select_by_visible_text(str(value))
 
 
-def show_details(_from: datetime, _to: datetime):
+def select_time_period(_from: datetime, _to: datetime):
     """
-    指定した期間の明細一覧画面を表示します
+    指定した表示期間を選択します
 
     :param _from:
     :param _to:
     :return:
     """
-
-    driver.find_element_by_xpath('//img[@alt="入出金明細をみる"]').click()
 
     driver.find_element_by_name('SHOUKAIKIKAN_RADIO').click()
 
@@ -88,7 +84,32 @@ def show_details(_from: datetime, _to: datetime):
     select_selectbox_value('SHOUKAIKIKAN_TO_M', str(_to.month))
     select_selectbox_value('SHOUKAIKIKAN_TO_D', str(_to.day))
 
-    driver.find_element_by_xpath('//img[@alt="照会"]').click()
+
+def show_details():
+    banking_list = driver.find_elements_by_xpath(
+            '//table[@class="data yen_nyushutsukin_001"]/tbody/tr')
+
+    for banking in banking_list:
+        detail = banking.find_elements_by_tag_name('td')
+
+        date = datetime.datetime.strptime(detail[0].text.replace('\n', ''), '%Y年%m月%d日')
+
+        payment = in_or_out_payment(detail[1].text, detail[2].text)
+        total = to_number(detail[4].text)
+
+        m = MoneyLog(date=date, payment=payment, remark=detail[3].text,
+                     total=total)
+        m.save()
+
+        print(m)
+
+    try:
+        driver.find_element_by_xpath('//a/img[@alt="新しい明細"]').click()
+    except NoSuchElementException:
+        return
+    else:
+        # 例外がない(=次のページがある)から次のページへ
+        show_details()
 
 
 def to_number(yen: str) -> int:
@@ -120,7 +141,10 @@ def in_or_out_payment(_out: str, _in: str) -> int:
 
 def main(_from: datetime, _to: datetime):
     try:
-        login()
+        account_id = os.environ['ACCOUNT_ID']
+        ib_password = os.environ['IB_PASSWORD']
+
+        login(account_id, ib_password)
 
         # お知らせ画面がある場合は既読にする
         read_information()
@@ -131,33 +155,21 @@ def main(_from: datetime, _to: datetime):
 
         print('{:,d}円'.format(total_amount))
 
-        # 入出金明細画面に移動
-        show_details(_from, _to)
+        driver.find_element_by_xpath('//img[@alt="入出金明細をみる"]').click()
 
-        # TODO 複数ページ対応
+        # 期間を指定する
+        select_time_period(_from, _to)
+        driver.find_element_by_xpath('//img[@alt="照会"]').click()
 
-        banking_list = driver.find_elements_by_xpath(
-                '//table[@class="data yen_nyushutsukin_001"]/tbody/tr')
-
-        for banking in banking_list:
-            detail = banking.find_elements_by_tag_name('td')
-
-            date = datetime.datetime.strptime(detail[0].text.replace('\n', ''), '%Y年%m月%d日')
-
-            payment = in_or_out_payment(detail[1].text, detail[2].text)
-            total = to_number(detail[4].text)
-
-            m = MoneyLog(date=date, payment=payment, remark=detail[3].text,
-                         total=total)
-            m.save()
-            print(m)
+        show_details()
 
         logout()
     finally:
         driver.close()
 
 if __name__ == '__main__':
-    today = datetime.datetime.now()
-    main(today, today)
+    start = datetime.datetime(year=2014, month=1, day=1)
+    end = datetime.datetime.now()
+    main(start, end)
 
 
