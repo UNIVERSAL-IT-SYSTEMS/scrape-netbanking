@@ -4,29 +4,14 @@
 import datetime
 import os
 
-from mongoengine import Document
-from mongoengine import connect
-from mongoengine import fields
 from selenium import webdriver
-from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import Select
 
 MUFG_TOP_URL = 'https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AA000_001'
 INFORMATION_TITLE = 'お知らせ - 三菱東京ＵＦＪ銀行'
 
 driver = webdriver.PhantomJS(executable_path='/usr/local/bin/phantomjs')
-
-connect('moneylog')
-
-
-class MoneyLog(Document):
-    date = fields.DateTimeField()
-    payment = fields.IntField()
-    remark = fields.StringField()
-    total = fields.IntField()
-
-    def __str__(self):
-        return '{}: {}: {}'.format(self.date, self.payment, self.remark)
 
 
 def login(account_id: str, ib_password: str):
@@ -95,13 +80,9 @@ def show_details():
         date = datetime.datetime.strptime(detail[0].text.replace('\n', ''), '%Y年%m月%d日')
 
         payment = in_or_out_payment(detail[1].text, detail[2].text)
-        total = to_number(detail[4].text)
+        # total = to_number(detail[4].text)
 
-        m = MoneyLog(date=date, payment=payment, remark=detail[3].text,
-                     total=total)
-        m.save()
-
-        print(m)
+        print('{}: {}'.format(date, payment))
 
     try:
         driver.find_element_by_xpath('//a/img[@alt="新しい明細"]').click()
